@@ -23,3 +23,5 @@ Règle 7: Donner à manger On n'a pas le droit d'affamer l'adversaire : De même, u
 Règle 8: Fin de jeu Le jeu se termine lorsque : - Un joueur n'a plus de graines dans son camp et ne peut donc plus jouer L'adversaire capture alors les graines restantes.
 
 - La partie boucle indéfiniment (la même situation se reproduit après un certain nombre de coups) Personne ne capture les graines restantes - L'un des joueurs abandonne L'adversaire capture les graines restantes.
+
+vu sur : http://www.african-concept.com/awale-regle-du-jeu.html
