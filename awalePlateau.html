@@ -9,30 +9,35 @@
 		$(document).ready(function(){
 			var jeu = {};
 			var animationEnCours = new Array();
-			var adversaire_local = true;
-			var adversaire_bot = true;
+			var adversaire_local = false;
+			var adversaire_bot = false;
 			
 			$("#ContreOrdinateur").click(function () {
+				adversaire_bot = true;
 				commence_nouvelle_partie();
 				jeu.ajouter_joueur("Moi");
 				jeu.ajouter_joueur("Ordinateur");
 			});
 			
 			$("#ContreHumainLocal").click(function () {
+				adversaire_local = true;
 				commence_nouvelle_partie();
 				$(this).find(".sous_form").show();
-				$(this).find(".sous_form button").click(function () {
-					jeu.ajouter_joueur($("#nomJoueur1").val());
-					jeu.ajouter_joueur($("#nomJoueur2").val());
-				});
+			});
+			
+			$("#ContreHumainLocal .sous_form button").click(function () {
+				jeu.ajouter_joueur($("#nomJoueur1").val());
+				jeu.ajouter_joueur($("#nomJoueur2").val());
 			});
 			
 			$("#ContreHumainDistant").click(function () {
 				commence_nouvelle_partie();
 				$(this).find(".sous_form").show();
-				$(this).find(".sous_form button").click(function () {
-					jeu.ajouter_joueur($("#nomJoueur").val());
-				});
+				
+			});
+			
+			$("#ContreHumainDistant .sous_form button").click(function () {
+				jeu.ajouter_joueur($("#nomJoueur").val());
 			});
 			
 			
@@ -97,7 +102,7 @@
 				});
 				
 				jeu.addListener("gain", function (args) {
-					AddRemveClass($('ul[index="' + args.index_joueur + '"] li[ix="' + args.index_trou + '"]'), "gagne_trou");
+					AddRemoveClass($('ul[index="' + args.index_joueur + '"] li[ix="' + args.index_trou + '"]'), "gagne_trou");
 					ChangeNbGraines(args.index_joueur, args.index_trou, 0);
 				});
 				

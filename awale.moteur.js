@@ -54,7 +54,7 @@ match_awale.prototype.joueur_joue = function(place_joueur, index_choix_trou) {
 		dernier_trou_distribue = this.egrene(place_joueur, index_choix_trou, nb_graines);
 		for(var i=dernier_trou_distribue.index_trou;i>=0;i--) {
 			if(this.verifier_trou_gagnant(place_joueur, dernier_trou_distribue.index_place, i)) {// ATTENTION dernier_trou_distribue est un tableau avec index_place, index_trou
-				this.gagner_graines(place_joueur, dernier_trou_distribue.index_place, dernier_trou_distribue.index_trou);
+				this.gagner_graines(place_joueur, dernier_trou_distribue.index_place, i);
 			} else { 
 				break;
 			}
