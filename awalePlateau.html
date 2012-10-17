@@ -1,0 +1,96 @@
+<html>
+	<head>
+	</head>
+	<body>
+		<script src="abstractDef.js"></script>
+		<script src="awale.moteur.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+		<script>
+		$(document).ready(function(){
+			var animationEnCours = new Array();
+			var jeu = new match_awale();
+			jeu.ajouter_joueur("Toto");
+			jeu.ajouter_joueur("Loulou");
+		
+			$('#trou_joueur li').click(function () {
+				var indexJoueur = $(this).parent().attr('index');
+				jeu.joueur_joue(indexJoueur, $(this).attr('ix'));
+			});
+			
+			
+			function ChangeNbGraines(index_joueur, index_trou, nbGraines) {
+				var trou = $('#plateau ul[index="' + index_joueur + '"] li[ix="' + index_trou + '"]');
+				trou.html(nbGraines);
+			}
+			
+			function ChangeNbGrainesPlus(index_joueur, index_trou, nbGraines) {
+				var trou = $('#plateau ul[index="' + index_joueur + '"] li[ix="' + index_trou + '"]');
+				var nbGraineTrou = trou.html(nbGraines);
+				trou.html(int.parse(nbGraineTrou) + nbGraines);
+			}
+			
+			
+			jeu.addListener("prise", function (args) {
+				ChangeNbGraines(args.index_joueur, args.index_trou, 0);
+			});
+			
+			jeu.addListener("egrene", function (args)  {
+				ChangeNbGraines(args.index_joueur, args.index_trou, args.nb_graines);
+			});
+			
+			// reçoit gain
+			jeu.addListener("gagnepoints", function (args)  {
+				var points = args.nb_points;
+				if(agrs.index_joueur == 0) {
+					$("#score_moi").html(args.nb_points);
+				} else {
+					$("#score_adversaire").html(args.nb_points);
+				}
+			});
+			
+			// reçoit fini
+			
+			// reçoit adversaire
+			
+			});
+		</script>
+		<style>
+			.trous {
+				list-style-type:none;
+				width: 800px;
+				float:left;
+			}
+			
+			.trous li {
+				display:block;
+				margin-left:2px;
+				float:left; /*pour IE*/
+				width: 70px;
+				border: solid 1px black;
+				align: center;
+			}
+		</style>
+		<div id="plateau">
+		<ul id="trou_adversaire" class="trous" index="0">
+			<li ix="5">4</li>
+			<li ix="4">4</li>
+			<li ix="3">4</li>
+			<li ix="2">4</li>
+			<li ix="1">4</li>
+			<li ix="0">4</li>
+		</ul>
+		<ul id="trou_joueur" class="trous" index="1">
+			<li ix="0">4</li>
+			<li ix="1">4</li>
+			<li ix="2">4</li>
+			<li ix="3">4</li>
+			<li ix="4">4</li>
+			<li ix="5">4</li>
+		</ul>
+		</div>
+		<div id="score">
+			<div><span>Adversaire</span><span id="score_adveraire"></span></div>
+			<div><span>Moi</span><span id="score_moi"></span></div>
+		</div>
+	</body>
+</html>
