@@ -32,7 +32,11 @@ match_awale.prototype.ajouter_joueur = function(login) {
 		nouveau_joueur.place = joueur_awale_place.NORD;
 	this.joueurs.push(nouveau_joueur);
 	
-	//this.send(me.etat());
+	this.fire("nouveau_joueur", nouveau_joueur);
+	
+	if(this.joueurs.length == 2) {
+		this.fire("match_commence", nouveau_joueur);
+	}
 };
 
 match_awale.prototype.etat = function() {
@@ -57,7 +61,7 @@ match_awale.prototype.joueur_joue = function(place_joueur, index_choix_trou) {
 		}
 		this.est_fini();
 	} else {
-		//TODO : on ne peut pas choisir ce trou
+		this.fire("choix_trou_imposible", {index_joueur: place_joueur, index_trou: index_choix_trou});
 	}
 };
 

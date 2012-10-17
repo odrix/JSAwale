@@ -7,24 +7,53 @@
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
 		<script>
 		$(document).ready(function(){
+			var jeu = {};
 			var animationEnCours = new Array();
-			var jeu = new match_awale();
 			var adversaire_local = true;
-			jeu.ajouter_joueur("Toto");
-			jeu.ajouter_joueur("Loulou");
+			var adversaire_bot = true;
+			
+			$("#ContreOrdinateur").click(function () {
+				commence_nouvelle_partie();
+				jeu.ajouter_joueur("Moi");
+				jeu.ajouter_joueur("Ordinateur");
+			});
+			
+			$("#ContreHumainLocal").click(function () {
+				commence_nouvelle_partie();
+				$(this).find(".sous_form").show();
+				$(this).find(".sous_form button").click(function () {
+					jeu.ajouter_joueur($("#nomJoueur1").val());
+					jeu.ajouter_joueur($("#nomJoueur2").val());
+				});
+			});
+			
+			$("#ContreHumainDistant").click(function () {
+				commence_nouvelle_partie();
+				$(this).find(".sous_form").show();
+				$(this).find(".sous_form button").click(function () {
+					jeu.ajouter_joueur($("#nomJoueur").val());
+				});
+			});
+			
+			
 		
 			$('#trou_joueur li').click(function () {
-				$(this).addClass("click_trou").delay(600).queue(function(next){
-						$(this).removeClass("click_trou");
-						next();
-				});
+				AddRemoveClass($(this), "click_trou");
 				var indexJoueur = $(this).parent().attr('index');
 				jeu.joueur_joue(indexJoueur, $(this).attr('ix'));
-				if(adversaire_local) {
+				if(adversaire_bot) {
 					$(this).delay(3000).queue(function(next) {
 						adversaire_joue();
 						next();
 					});
+				}
+			});
+			
+			$('#trou_adversaire li').click(function () {
+				if(adversaire_local) {
+					AddRemoveClass($(this), "click_trou");
+					var indexJoueur = $(this).parent().attr('index');
+					jeu.joueur_joue(indexJoueur, $(this).attr('ix'));
 				}
 			});
 			
@@ -43,53 +72,68 @@
 				{
 					index_trou = 3;
 				}
-				$('#trou_adversaire li[ix="' + index_trou + '"]').addClass("click_trou").delay(600).queue(function(next){
-						$(this).removeClass("click_trou");
+				AddRemoveClass($('#trou_adversaire li[ix="' + index_trou + '"]'), "click_trou");
+				jeu.joueur_joue(0, index_trou);
+			}
+			
+			function AddRemoveClass(el, nom_class) {
+				el.addClass(nom_class).delay(600).queue(function(next){
+						$(this).removeClass(nom_class);
 						next();
 				});
-				jeu.joueur_joue(0, index_trou);
 			}
 			
 			function ChangeNbGraines(index_joueur, index_trou, nbGraines) {
 				var trou = $('#plateau ul[index="' + index_joueur + '"] li[ix="' + index_trou + '"]');
 				trou.html(nbGraines);
-			}
-			
-			function ChangeNbGrainesPlus(index_joueur, index_trou, nbGraines) {
-				var trou = $('#plateau ul[index="' + index_joueur + '"] li[ix="' + index_trou + '"]');
-				var nbGraineTrou = trou.html(nbGraines);
-				trou.html(int.parse(nbGraineTrou) + nbGraines);
-			}
+			}		
 			
 			
-			jeu.addListener("prise", function (args) {
-				ChangeNbGraines(args.index_joueur, args.index_trou, 0);
-			});
+			function commence_nouvelle_partie() {
+				jeu = new match_awale();
 			
-			jeu.addListener("gain", function (args) {
-				$('ul[index="' + args.index_joueur + '"] li[ix="' + args.index_trou + '"]').addClass("gagne_trou").delay(600).queue(function(next){
-						$(this).removeClass("gagne_trou");
-						next();
+				jeu.addListener("prise", function (args) {
+					ChangeNbGraines(args.index_joueur, args.index_trou, 0);
 				});
-				ChangeNbGraines(args.index_joueur, args.index_trou, 0);
-			});
+				
+				jeu.addListener("gain", function (args) {
+					AddRemveClass($('ul[index="' + args.index_joueur + '"] li[ix="' + args.index_trou + '"]'), "gagne_trou");
+					ChangeNbGraines(args.index_joueur, args.index_trou, 0);
+				});
+				
+				jeu.addListener("egrene", function (args)  {
+					ChangeNbGraines(args.index_joueur, args.index_trou, args.nb_graines);
+				});
+				
+				// reçoit gain
+				jeu.addListener("gagnepoints", function (args)  {
+					if(args.index_joueur == 1) {
+						$("#score_moi .valeur").html(args.nb_points);
+					} else {
+						$("#score_adversaire .valeur").html(args.nb_points);
+					}
+				});
+				
+				// reçoit fini
+				
+				// reçoit joueur
+				jeu.addListener("nouveau_joueur", function (joueur)  {
+					if(joueur.place == 1) {
+						$("#score_moi .libelle").html(joueur.login);
+					} else {
+						$("#score_adversaire .libelle").html(joueur.login);
+					}
+				});
+				
+				jeu.addListener("match_commence", function() {
+					$("#debut").hide();
+					$(".sous_form").hide();
+					$("#plateau").show();
+				});
+			}
 			
-			jeu.addListener("egrene", function (args)  {
-				ChangeNbGraines(args.index_joueur, args.index_trou, args.nb_graines);
-			});
-			
-			// reçoit gain
-			jeu.addListener("gagnepoints", function (args)  {
-				if(args.index_joueur == 1) {
-					$("#score_moi").html(args.nb_points);
-				} else {
-					$("#score_adversaire").html(args.nb_points);
-				}
-			});
-			
-			// reçoit fini
-			
-			// reçoit adversaire
+			$("#debut").show();
+			$("#plateau").hide();
 			
 			});
 		</script>
@@ -118,28 +162,62 @@
 				background-color: green;
 				font-weight: bold;
 			}
+			
+			#score span.valeur {
+				margin: 6px 0 0 0;
+				display: inline-block;
+				width: 60px;
+			}
+			
+			#score span.libelle {
+				margin: 6px 0 6px 0;
+				display: inline-block;
+				width: 190px;
+			}
+			
+			.sous_form {
+				display: none;
+			}
 		</style>
 		<div id="plateau">
-		<ul id="trou_adversaire" class="trous" index="0">
-			<li ix="5">4</li>
-			<li ix="4">4</li>
-			<li ix="3">4</li>
-			<li ix="2">4</li>
-			<li ix="1">4</li>
-			<li ix="0">4</li>
-		</ul>
-		<ul id="trou_joueur" class="trous" index="1">
-			<li ix="0">4</li>
-			<li ix="1">4</li>
-			<li ix="2">4</li>
-			<li ix="3">4</li>
-			<li ix="4">4</li>
-			<li ix="5">4</li>
-		</ul>
+			<ul id="trou_adversaire" class="trous" index="0">
+				<li ix="5">4</li>
+				<li ix="4">4</li>
+				<li ix="3">4</li>
+				<li ix="2">4</li>
+				<li ix="1">4</li>
+				<li ix="0">4</li>
+			</ul>
+			<ul id="trou_joueur" class="trous" index="1">
+				<li ix="0">4</li>
+				<li ix="1">4</li>
+				<li ix="2">4</li>
+				<li ix="3">4</li>
+				<li ix="4">4</li>
+				<li ix="5">4</li>
+			</ul>
+			<div id="score">
+				<div id="score_adversaire"><span class="libelle">Adversaire</span><span class="valeur">0</span></div>
+				<div id="score_moi"><span class="libelle">Moi</span><span class="valeur">0</span></div>
+			</div>
 		</div>
-		<div id="score">
-			<div><span>Adversaire</span><span id="score_adversaire"></span></div>
-			<div><span>Moi</span><span id="score_moi"></span></div>
+		<div id="debut">
+			<div id="ContreOrdinateur">1 joueur</div>
+			<div id="ContreHumainLocal">Face à face
+				<div class="sous_form">
+					<span class="libelle">Joueur 1</span><input id="nomJoueur1" type="text" />
+					<span class="libelle">Joueur 2</span><input id="nomJoueur2" type="text" />
+					<button>Ok</button>
+				</div>
+			</div>
+			<div id="ContreHumainDistant">Longue distance
+				<div class="sous_form">
+					<span class="libelle">Votre pseudo</span><input id="nomJoueur" type="text" />
+					<button>Ok</button>
+				</div>
+			</div>
+		</div>
+		<div id="attente_adversaire">
 		</div>
 	</body>
 </html>
