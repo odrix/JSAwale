@@ -4,6 +4,7 @@ trou.prototype.nbgraines = 4;
 var joueur_awale_place = { NORD:0, SUD:1 };
 function joueur_awale() {
 	this.__proto__.__proto__.constructor.apply(this, arguments);
+	this.trous = new Array();
 	for(var i=0;i<6;i++)
 	{
 		this.trous.push(new trou());
@@ -11,7 +12,7 @@ function joueur_awale() {
 }
 joueur_awale.prototype.__proto__ = aJoueur.prototype;
 //joueur_awale.prototype.place = joueur_awale_place.SUD;
-joueur_awale.prototype.trous = new Array();
+// joueur_awale.prototype.trous = new Array();
 
 
 
@@ -47,9 +48,9 @@ match_awale.prototype.joueur_joue = function(place_joueur, index_choix_trou) {
 	nb_graines = this.prise(place_joueur, index_choix_trou);
 	if(nb_graines > 0) {
 		dernier_trou_distribue = this.egrene(place_joueur, index_choix_trou, nb_graines);
-		for(var i=dernier_trou_distribue[1];i>0;i--) {
-			if(this.verifier_trou_gagnant(place_joueur, dernier_trou_distribue[0], i)) {// ATTENTION dernier_trou_distribue est un tableau avec index_place, index_trou
-				this.gagner_graines(place_joueur, dernier_trou_distribue);
+		for(var i=dernier_trou_distribue.index_trou;i>=0;i--) {
+			if(this.verifier_trou_gagnant(place_joueur, dernier_trou_distribue.index_place, i)) {// ATTENTION dernier_trou_distribue est un tableau avec index_place, index_trou
+				this.gagner_graines(place_joueur, dernier_trou_distribue.index_place, dernier_trou_distribue.index_trou);
 			} else { 
 				break;
 			}
@@ -109,8 +110,8 @@ match_awale.prototype.verifier_trou_gagnant = function (index_joueur_joue, index
 match_awale.prototype.gagner_graines = function (index_joueur_joue, index_place, index_trou) {
 	this.joueurs[index_joueur_joue].nb_points += this.joueurs[index_place].trous[index_trou].nbgraines;
 	this.joueurs[index_place].trous[index_trou].nbgraines = 0;
-	this.fire("prise", {index_joueur: index_place, index_trou: index_trou});
-	this.fire("gagnepoints", {index_joueur: index_place, nb_points:this.joueurs[index_place].nb_points});
+	this.fire("gain", {index_joueur: index_place, index_trou: index_trou});
+	this.fire("gagnepoints", {index_joueur: index_joueur_joue, nb_points:this.joueurs[index_joueur_joue].nb_points});
 };
 
 match_awale.prototype.est_fini = function() {

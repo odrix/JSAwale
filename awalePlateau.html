@@ -9,14 +9,46 @@
 		$(document).ready(function(){
 			var animationEnCours = new Array();
 			var jeu = new match_awale();
+			var adversaire_local = true;
 			jeu.ajouter_joueur("Toto");
 			jeu.ajouter_joueur("Loulou");
 		
 			$('#trou_joueur li').click(function () {
+				$(this).addClass("click_trou").delay(600).queue(function(next){
+						$(this).removeClass("click_trou");
+						next();
+				});
 				var indexJoueur = $(this).parent().attr('index');
 				jeu.joueur_joue(indexJoueur, $(this).attr('ix'));
+				if(adversaire_local) {
+					$(this).delay(3000).queue(function(next) {
+						adversaire_joue();
+						next();
+					});
+				}
 			});
 			
+			
+			function adversaire_joue() {
+				var index_trou = -1;
+				var max_graines = 0;
+				$('#trou_adversaire li').each(function() {
+					if(max_graines < $(this).html()) {
+						max_graines = $(this).html();
+						index_trou = $(this).attr('ix');
+					}
+				});
+				
+				if(index_trou < 0)
+				{
+					index_trou = 3;
+				}
+				$('#trou_adversaire li[ix="' + index_trou + '"]').addClass("click_trou").delay(600).queue(function(next){
+						$(this).removeClass("click_trou");
+						next();
+				});
+				jeu.joueur_joue(0, index_trou);
+			}
 			
 			function ChangeNbGraines(index_joueur, index_trou, nbGraines) {
 				var trou = $('#plateau ul[index="' + index_joueur + '"] li[ix="' + index_trou + '"]');
@@ -34,14 +66,21 @@
 				ChangeNbGraines(args.index_joueur, args.index_trou, 0);
 			});
 			
+			jeu.addListener("gain", function (args) {
+				$('ul[index="' + args.index_joueur + '"] li[ix="' + args.index_trou + '"]').addClass("gagne_trou").delay(600).queue(function(next){
+						$(this).removeClass("gagne_trou");
+						next();
+				});
+				ChangeNbGraines(args.index_joueur, args.index_trou, 0);
+			});
+			
 			jeu.addListener("egrene", function (args)  {
 				ChangeNbGraines(args.index_joueur, args.index_trou, args.nb_graines);
 			});
 			
 			// reçoit gain
 			jeu.addListener("gagnepoints", function (args)  {
-				var points = args.nb_points;
-				if(agrs.index_joueur == 0) {
+				if(args.index_joueur == 1) {
 					$("#score_moi").html(args.nb_points);
 				} else {
 					$("#score_adversaire").html(args.nb_points);
@@ -69,6 +108,16 @@
 				border: solid 1px black;
 				align: center;
 			}
+			
+			.click_trou {
+				background-color: orange;
+				font-weight: bold;
+			}
+			
+			.gagne_trou {
+				background-color: green;
+				font-weight: bold;
+			}
 		</style>
 		<div id="plateau">
 		<ul id="trou_adversaire" class="trous" index="0">
@@ -89,7 +138,7 @@
 		</ul>
 		</div>
 		<div id="score">
-			<div><span>Adversaire</span><span id="score_adveraire"></span></div>
+			<div><span>Adversaire</span><span id="score_adversaire"></span></div>
 			<div><span>Moi</span><span id="score_moi"></span></div>
 		</div>
 	</body>
